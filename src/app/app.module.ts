@@ -5,10 +5,12 @@ import {MatButtonModule, MatCheckboxModule, MatIconModule} from '@angular/materi
 import {MatToolbarModule} from '@angular/material/toolbar';
 
 import { AppComponent } from './app.component';
+import { ContentWrapperComponent } from './content-wrapper/content-wrapper.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ContentWrapperComponent
   ],
   imports: [
     BrowserModule,
