@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatButtonModule, MatCheckboxModule, MatIconModule} from '@angular/material';
 import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatCardModule} from '@angular/material/card';
 
 import { AppComponent } from './app.component';
 import { ContentWrapperComponent } from './content-wrapper/content-wrapper.component';
@@ -18,7 +19,8 @@ import { ContentWrapperComponent } from './content-wrapper/content-wrapper.compo
     MatButtonModule, 
     MatCheckboxModule,
     MatIconModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatCardModule
   ],
   providers: [],
   bootstrap: [AppComponent]

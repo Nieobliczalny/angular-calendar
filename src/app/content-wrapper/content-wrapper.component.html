@@ -1,3 +1,18 @@
-<p>
-  content-wrapper works!
-</p>
+<div class="flex-container flex-column flex-top">
+  <div *ngFor="let item of createRange(6); index as i" class="flex-box flex-container flex-row flex-box-6">
+    <div *ngFor="let item of createRange(7); index as j" class="flex-box flex-box-7" [ngClass]="{current: days[i*7+j].isCurrentMonth, notCurrent: !days[i*7+j].isCurrentMonth, sunday: (j === 6)}">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>{{days[i*7+j].day}}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content *ngIf="days[i*7+j].labels.length > 0" (click)="showToast(days[i*7+j])">
+              <p *ngIf="days[i*7+j].labels.length == 1">
+                  <span *ngIf="days[i*7+j].labels[0].text.length < 15">{{days[i*7+j].labels[0].text}}</span>
+                  <span *ngIf="days[i*7+j].labels[0].text.length >= 15">{{days[i*7+j].labels[0].text.substr(0, 14)}}...</span>
+              </p>
+              <p *ngIf="days[i*7+j].labels.length > 1">{{days[i*7+j].labels.length}} rzeczy</p>
+          </mat-card-content>
+        </mat-card>
+    </div>
+  </div>
+</div>
