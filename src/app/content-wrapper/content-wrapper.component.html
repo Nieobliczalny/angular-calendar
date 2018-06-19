@@ -7,8 +7,8 @@
           </mat-card-header>
           <mat-card-content *ngIf="days[i*7+j].labels.length > 0" (click)="showToast(days[i*7+j])">
               <p *ngIf="days[i*7+j].labels.length == 1">
-                  <span *ngIf="days[i*7+j].labels[0].text.length < 15">{{days[i*7+j].labels[0].text}}</span>
-                  <span *ngIf="days[i*7+j].labels[0].text.length >= 15">{{days[i*7+j].labels[0].text.substr(0, 14)}}...</span>
+                  <span *ngIf="days[i*7+j].labels[0].text.length < 15">{{ days[i*7+j].labels[0].time | date:'shortTime' }}: {{days[i*7+j].labels[0].text}}</span>
+                  <span *ngIf="days[i*7+j].labels[0].text.length >= 15">{{ days[i*7+j].labels[0].time | date:'shortTime' }}: {{days[i*7+j].labels[0].text.substr(0, 14)}}...</span>
               </p>
               <p *ngIf="days[i*7+j].labels.length > 1">{{days[i*7+j].labels.length}} rzeczy</p>
           </mat-card-content>

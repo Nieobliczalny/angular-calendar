@@ -1,8 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import {Day} from '../day'
 import {Label} from '../label'
-import {Save} from '../save'
-import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
+import {MatDialog, MatDialogRef, MAT_DIALOG_DATA, NativeDateModule} from '@angular/material';
 import {LOCAL_STORAGE, WebStorageService} from 'angular-webstorage-service';
 
 export const STORAGE_KEY: string = "savedLabels";
@@ -19,7 +18,7 @@ export class ContentWrapperComponent implements OnInit {
   firstMonday : Date = new Date();
   addText : string;
   addDate : Date;
-  labels : Save[] = [];
+  labels : Label[] = [];
 
   constructor(public dialog: MatDialog, @Inject(LOCAL_STORAGE) private storage: WebStorageService) {
     var savedData = JSON.parse(this.storage.get(STORAGE_KEY));
@@ -27,7 +26,7 @@ export class ContentWrapperComponent implements OnInit {
     {
       for (var i = 0; i < savedData.length; i++)
       {
-        var save : Save = new Save();
+        var save : Label = new Label();
         save.text = savedData[i].text;
         save.time = savedData[i].time;
         this.labels.push(save);
@@ -65,9 +64,7 @@ export class ContentWrapperComponent implements OnInit {
         {
           if (this.labels[k].time >= startTime && this.labels[k].time <= endTime)
           {
-            var label = new Label();
-            label.text = this.labels[k].text;
-            day.labels.push(label);
+            day.labels.push(this.labels[k]);
           }
         }
 
@@ -91,7 +88,31 @@ export class ContentWrapperComponent implements OnInit {
 
   showToast(day: Day)
   {
-    alert(day.day);
+    let dialogRef = this.dialog.open(ShowDayDialog, {
+      width: '50%',
+      data: { dayData: day, removedLabels: [] }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result)
+      {
+        for (var i = 0; i < this.labels.length; i++)
+        {
+          for (var j = 0; j < result.removedLabels.length; j++)
+          {
+            if (this.labels[i] === result.removedLabels[j])
+            {
+              this.labels.splice(i, 1);
+            }
+          }
+        }
+        if (result.removedLabels.length > 0)
+        {
+          this.saveInLocalStorage();
+        }
+      }
+      this.updateCalendar();
+    });
   }
 
   showAdd()
@@ -102,15 +123,18 @@ export class ContentWrapperComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      var save = new Save();
-      save.text = result.text;
-      save.time = result.data.getTime();
-      var timeData = result.time.split(':');
-      save.time += parseInt(timeData[0]) * 3600000;
-      save.time += parseInt(timeData[1]) * 60000;
-      this.labels.push(save);
-      this.saveInLocalStorage();
-      this.updateCalendar();
+      if (result)
+      {
+        var save = new Label();
+        save.text = result.text;
+        save.time = result.data.getTime();
+        var timeData = result.time.split(':');
+        save.time += parseInt(timeData[0]) * 3600000;
+        save.time += parseInt(timeData[1]) * 60000;
+        this.labels.push(save);
+        this.saveInLocalStorage();
+        this.updateCalendar();
+      }
     });
   }
 
@@ -162,6 +186,65 @@ export class AddNewItemDialog {
 
   onNoClick(): void {
     this.dialogRef.close();
+  }
+
+}
+
+@Component({
+  selector: 'show-day-dialog',
+  templateUrl: 'show-day-dialog.html',
+})
+export class ShowDayDialog {
+
+  tableSettings = {
+    columns: {
+      time: {
+        title: 'Godzina',
+        valuePrepareFunction: function(cell, row) {
+          var dateObj = new Date(cell);
+          var h : any = dateObj.getHours();
+          var m : any = dateObj.getMinutes();
+          if (h < 10) h = '0' + h;
+          if (m < 10) m = '0' + m;
+          return h + ':' + m;
+        }
+      },
+      text: {
+        title: 'Notatka'
+      }
+    },
+    mode: 'external',
+    noDataMessage: 'Brak notatek',
+    actions: {
+      columnTitle: 'Akcje',
+      add: false,
+      edit: false,
+      position: 'right'
+    },
+    delete: {
+      deleteButtonContent: "Usuń"
+    }
+  };
+
+  constructor(
+    public dialogRef: MatDialogRef<ShowDayDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: any) { }
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  removeLabel(event: any) {
+    for (var i = 0; i < this.data.dayData.labels.length; i++)
+    {
+      if (this.data.dayData.labels[i] === event.data)
+      {
+        this.data.removedLabels.push(event.data);
+        this.data.dayData.labels.splice(i, 1);
+        event._dataSet.rows.splice(event.index, 1);
+        return;
+      }
+    }
   }
 
 }
