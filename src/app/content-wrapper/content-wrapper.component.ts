@@ -1,4 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
+import { EventEmitter, Output } from '@angular/core';
 import {Day} from '../day'
 import {Label} from '../label'
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA, NativeDateModule} from '@angular/material';
@@ -13,6 +14,7 @@ export const STORAGE_KEY: string = "savedLabels";
 })
 export class ContentWrapperComponent implements OnInit {
 
+  @Output() dateChanged: EventEmitter<number> = new EventEmitter<number>();
   date : Date = new Date();
   days : Day[] = [];
   firstMonday : Date = new Date();
@@ -75,7 +77,7 @@ export class ContentWrapperComponent implements OnInit {
   }
 
   ngOnInit() {
-
+    this.dateChanged.emit(this.date.getTime());
   }
 
   createRange(number){
