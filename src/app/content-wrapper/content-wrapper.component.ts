@@ -200,6 +200,7 @@ export class ShowDayDialog {
     columns: {
       time: {
         title: 'Godzina',
+        sortDirection: 'asc',
         valuePrepareFunction: function(cell, row) {
           var dateObj = new Date(cell);
           var h : any = dateObj.getHours();
