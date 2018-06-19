@@ -1,6 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import {Day} from '../day'
 import {Label} from '../label'
+import {Save} from '../save'
+import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
+import {LOCAL_STORAGE, WebStorageService} from 'angular-webstorage-service';
+
+export const STORAGE_KEY: string = "savedLabels";
 
 @Component({
   selector: 'app-content-wrapper',
@@ -12,8 +17,22 @@ export class ContentWrapperComponent implements OnInit {
   date : Date = new Date();
   days : Day[] = [];
   firstMonday : Date = new Date();
+  addText : string;
+  addDate : Date;
+  labels : Save[] = [];
 
-  constructor() { 
+  constructor(public dialog: MatDialog, @Inject(LOCAL_STORAGE) private storage: WebStorageService) {
+    var savedData = JSON.parse(this.storage.get(STORAGE_KEY));
+    if (savedData != null)
+    {
+      for (var i = 0; i < savedData.length; i++)
+      {
+        var save : Save = new Save();
+        save.text = savedData[i].text;
+        save.time = savedData[i].time;
+        this.labels.push(save);
+      }
+    }
     this.updateCalendar();
   }
 
@@ -39,13 +58,19 @@ export class ContentWrapperComponent implements OnInit {
         day.date = date;
         day.isCurrentMonth = date.getMonth() == this.date.getMonth();
         day.labels = [];
-        var rnd = Math.floor(Math.random() * 4);
-        for (var k = 0; k < rnd; k++)
+        var startTime = (new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0)).getTime();
+        var endTime = (new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999)).getTime();
+
+        for (var k = 0; k < this.labels.length; k++)
         {
-          var label = new Label();
-          label.text = k + '';
-          day.labels.push(label);
+          if (this.labels[k].time >= startTime && this.labels[k].time <= endTime)
+          {
+            var label = new Label();
+            label.text = this.labels[k].text;
+            day.labels.push(label);
+          }
         }
+
         this.days.push(day);
         date = new Date(date.getTime() + 86400000);
       }
@@ -67,6 +92,37 @@ export class ContentWrapperComponent implements OnInit {
   showToast(day: Day)
   {
     alert(day.day);
+  }
+
+  showAdd()
+  {
+    let dialogRef = this.dialog.open(AddNewItemDialog, {
+      width: '250px',
+      data: { text: this.addText, data: this.addDate, time: '' }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      var save = new Save();
+      save.text = result.text;
+      save.time = result.data.getTime();
+      var timeData = result.time.split(':');
+      save.time += parseInt(timeData[0]) * 3600000;
+      save.time += parseInt(timeData[1]) * 60000;
+      this.labels.push(save);
+      this.saveInLocalStorage();
+      this.updateCalendar();
+    });
+  }
+
+  saveInLocalStorage()
+  {
+    var data = [];
+    for (var i = 0; i < this.labels.length; i++)
+    {
+      var obj = { text: this.labels[i].text, time: this.labels[i].time };
+      data.push(obj);
+    }
+    this.storage.set(STORAGE_KEY, JSON.stringify(data));
   }
   /*
   dragStart(ev)
@@ -92,4 +148,20 @@ export class ContentWrapperComponent implements OnInit {
     ev.preventDefault();
     ev.stopPropagation();
   }*/
+}
+
+@Component({
+  selector: 'add-new-item-dialog',
+  templateUrl: 'add-new-item-dialog.html',
+})
+export class AddNewItemDialog {
+
+  constructor(
+    public dialogRef: MatDialogRef<AddNewItemDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: any) { }
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
 }

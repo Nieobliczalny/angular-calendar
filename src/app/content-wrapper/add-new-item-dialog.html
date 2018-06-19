@@ -1,0 +1,26 @@
+<h1 mat-dialog-title>Dodaj nową notatkę</h1>
+<div mat-dialog-content class="mat-typography">
+  <p>O czym Tobie przypomnieć?</p>
+  <mat-form-field>
+    <input matInput [(ngModel)]="data.text">
+  </mat-form-field>
+  <p>W jakim dniu umieścić notatkę?</p>
+  <mat-form-field>
+    <input matInput [matDatepicker]="addItemDatepicker" [(ngModel)]="data.data">
+    <mat-datepicker-toggle matSuffix [for]="addItemDatepicker"></mat-datepicker-toggle>
+    <mat-datepicker #addItemDatepicker></mat-datepicker>
+  </mat-form-field>
+  <p>O której godzinie?</p>
+  <mat-form-field>
+    <input matInput atp-time-picker [(ngModel)]="data.time"/>
+  </mat-form-field>
+</div>
+<div mat-dialog-actions class="mat-typography">
+  <button mat-button (click)="onNoClick()">Anuluj</button>
+  <button mat-raised-button color="primary" [mat-dialog-close]="data" cdkFocusInitial>Dodaj</button>
+</div>
+
+
+<!-- Copyright 2018 Google Inc. All Rights Reserved.
+    Use of this source code is governed by an MIT-style license that
+    can be found in the LICENSE file at http://angular.io/license -->
