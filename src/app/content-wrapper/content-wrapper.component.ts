@@ -4,8 +4,10 @@ import {Day} from '../day'
 import {Label} from '../label'
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA, NativeDateModule} from '@angular/material';
 import {LOCAL_STORAGE, WebStorageService} from 'angular-webstorage-service';
+import { DateService } from '../date.service'
 
-export const STORAGE_KEY: string = "savedLabels";
+export const STORAGE_KEY_LABELS: string = "savedLabels";
+export const STORAGE_KEY_START_DATE: string = "startDate";
 
 @Component({
   selector: 'app-content-wrapper',
@@ -14,7 +16,6 @@ export const STORAGE_KEY: string = "savedLabels";
 })
 export class ContentWrapperComponent implements OnInit {
 
-  @Output() dateChanged: EventEmitter<number> = new EventEmitter<number>();
   date : Date = new Date();
   days : Day[] = [];
   firstMonday : Date = new Date();
@@ -24,8 +25,11 @@ export class ContentWrapperComponent implements OnInit {
   swipeCoord?: [number, number];
   swipeTime?: number;
 
-  constructor(public dialog: MatDialog, @Inject(LOCAL_STORAGE) private storage: WebStorageService) {
-    var savedData = JSON.parse(this.storage.get(STORAGE_KEY));
+  constructor(public dialog: MatDialog, private dateService: DateService, @Inject(LOCAL_STORAGE) private storage: WebStorageService) {
+    dateService.dateResetted$.subscribe(date => {
+      this.changeDate(date);
+    });
+    var savedData = JSON.parse(this.storage.get(STORAGE_KEY_LABELS));
     if (savedData != null)
     {
       for (var i = 0; i < savedData.length; i++)
@@ -36,7 +40,24 @@ export class ContentWrapperComponent implements OnInit {
         this.labels.push(save);
       }
     }
+    var startTime = this.storage.get(STORAGE_KEY_START_DATE);
+    if (startTime != null)
+    {
+      startTime = parseInt(startTime);
+      if (startTime > 0)
+      {
+        this.date = new Date(startTime);
+      }
+    }
     this.updateCalendar();
+  }
+
+  changeDate(date: Date)
+  {
+    this.date = date;
+    this.updateCalendar();
+    this.dateService.changeDate(date.getTime());
+    this.storage.set(STORAGE_KEY_START_DATE, date.getTime());
   }
 
   updateCalendar()
@@ -79,7 +100,7 @@ export class ContentWrapperComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.dateChanged.emit(this.date.getTime());
+    this.dateService.changeDate(this.date.getTime());
   }
 
   createRange(number){
@@ -150,25 +171,21 @@ export class ContentWrapperComponent implements OnInit {
       var obj = { text: this.labels[i].text, time: this.labels[i].time };
       data.push(obj);
     }
-    this.storage.set(STORAGE_KEY, JSON.stringify(data));
+    this.storage.set(STORAGE_KEY_LABELS, JSON.stringify(data));
   }
 
   nextMonth()
   {
     var newDate = new Date(this.date.getTime());
     newDate.setMonth(newDate.getMonth() + 1);
-    this.date = newDate;
-    this.updateCalendar();
-    this.dateChanged.emit(this.date.getTime());
+    this.changeDate(newDate);
   }
 
   prevMonth()
   {
     var newDate = new Date(this.date.getTime());
     newDate.setMonth(newDate.getMonth() - 1);
-    this.date = newDate;
-    this.updateCalendar();
-    this.dateChanged.emit(this.date.getTime());
+    this.changeDate(newDate);
   }
 }
 

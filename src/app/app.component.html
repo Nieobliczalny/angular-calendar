@@ -2,7 +2,7 @@
 <mat-toolbar color="primary">
   <span>{{today | date:'LLLL y' | uppercase}}</span>
   <span class="example-fill-remaining-space"></span>
-  <!--<span><button mat-icon-button color="default"><mat-icon>settings</mat-icon></button></span>-->
+  <span><button mat-icon-button color="default" (click)="resetDate()"><mat-icon>update</mat-icon></button></span>
 </mat-toolbar>
 
-<app-content-wrapper (dateChanged)="updateDate($event)"></app-content-wrapper>
+<app-content-wrapper></app-content-wrapper>
