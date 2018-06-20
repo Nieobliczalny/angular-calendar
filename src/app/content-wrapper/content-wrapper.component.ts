@@ -21,6 +21,8 @@ export class ContentWrapperComponent implements OnInit {
   addText : string;
   addDate : Date;
   labels : Label[] = [];
+  swipeCoord?: [number, number];
+  swipeTime?: number;
 
   constructor(public dialog: MatDialog, @Inject(LOCAL_STORAGE) private storage: WebStorageService) {
     var savedData = JSON.parse(this.storage.get(STORAGE_KEY));
@@ -150,30 +152,24 @@ export class ContentWrapperComponent implements OnInit {
     }
     this.storage.set(STORAGE_KEY, JSON.stringify(data));
   }
-  /*
-  dragStart(ev)
+
+  nextMonth()
   {
-    ev.dataTransfer.setData("class", ev.target.className);
-    //this.isDrag = true;
+    var newDate = new Date(this.date.getTime());
+    newDate.setMonth(newDate.getMonth() + 1);
+    this.date = newDate;
+    this.updateCalendar();
+    this.dateChanged.emit(this.date.getTime());
   }
 
-  drop(ev)
+  prevMonth()
   {
-    ev.preventDefault();
-    ev.stopPropagation();
-    if (ev.target.className != ev.dataTransfer.getData('class'))
-    {
-      console.log("Swap");
-    }
-    //this.isDrag = false;
-    ev.target.classList.remove('drag-hover');
+    var newDate = new Date(this.date.getTime());
+    newDate.setMonth(newDate.getMonth() - 1);
+    this.date = newDate;
+    this.updateCalendar();
+    this.dateChanged.emit(this.date.getTime());
   }
-
-  allowDrop(ev)
-  {
-    ev.preventDefault();
-    ev.stopPropagation();
-  }*/
 }
 
 @Component({

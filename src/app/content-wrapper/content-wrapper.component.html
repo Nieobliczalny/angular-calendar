@@ -1,4 +1,4 @@
-<div class="flex-container flex-column flex-top">
+<div class="flex-container flex-column flex-top" (swipeleft)="nextMonth()" (swiperight)="prevMonth()">
   <div *ngFor="let item of createRange(6); index as i" class="flex-box flex-container flex-row flex-box-6">
     <div *ngFor="let item of createRange(7); index as j" class="flex-box flex-box-7" [ngClass]="{current: days[i*7+j].isCurrentMonth, notCurrent: !days[i*7+j].isCurrentMonth, sunday: (j === 6)}">
         <mat-card>

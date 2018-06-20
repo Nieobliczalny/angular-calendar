@@ -15,6 +15,7 @@ import { ContentWrapperComponent, AddNewItemDialog, ShowDayDialog } from './cont
 
 import { registerLocaleData } from '@angular/common';
 import LocalePL from '@angular/common/locales/pl';
+import 'hammerjs';
 
 registerLocaleData(LocalePL);
 
